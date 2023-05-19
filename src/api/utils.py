@@ -90,10 +90,10 @@ class AudioService:
             file_id: uuid.UUID
     ) -> AudioFile | None:
         """
-        Получения всех записей пользователя
+        Получения файла по его id, текущего пользователя
         :param user_id: UUID текущего пользователя
         :param file_id: UUID file
-        :return: список с аудиофайлами
+        :return: аудиофайл
         """
         audio_file = await AudioAction.get_by_user_audio_file(
             user_id=user_id,
