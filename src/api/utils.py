@@ -50,9 +50,9 @@ class AudioService:
         Конвертация аудиофайла из wav в mp3
         :param file: File to convert
         """
-        ffmpeg_path = os.path.join(
-            'static/ffmpeg-6.0-full_build/bin/ffmpeg.exe')
-        AudioSegment.converter = ffmpeg_path
+        #ffmpeg_path = os.path.join( 
+        #   'static/ffmpeg-6.0-full_build/bin/ffmpeg.exe')
+        # AudioSegment.converter = ffmpeg_path # for windows 
         audio_wav = AudioSegment.from_wav(io.BytesIO(file))
         audio_mp3 = io.BytesIO()
         audio_wav.export(audio_mp3, format='mp3')
