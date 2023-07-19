@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from fastapi_users_db_sqlalchemy.generics import GUID
-from db.session import get_db
+from app.database.session import get_db
 
 
 Base = declarative_base()
@@ -57,15 +57,13 @@ class AudioFile(Base):
     Attributes:
         - id: pk, type UUID
         - user: ForeignKey, type UUID
-        - filename: str
-        - file_path: str
         - data: Binary (скачивание на прямую из базы)
     """
 
     __tablename__ = 'audio_file'
 
     id: Mapped[uuid.UUID] = mapped_column(
-       GUID, primary_key=True, default=uuid.uuid4
+       UUID, primary_key=True, default=uuid.uuid4
     )
     user: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey('user.id', ondelete='CASCADE')
