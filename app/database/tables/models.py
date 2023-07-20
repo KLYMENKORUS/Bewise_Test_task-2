@@ -68,6 +68,9 @@ class AudioFile(Base):
     user: Mapped[uuid.UUID] = mapped_column(
         UUID, ForeignKey('user.id', ondelete='CASCADE')
     )
+    name_file: Mapped[str] = mapped_column(
+        String(128), nullable=False, unique=True
+    )
     data = mapped_column(
         BINARY, nullable=False
     )

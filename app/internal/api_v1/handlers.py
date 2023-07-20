@@ -1,6 +1,8 @@
+import io
 from typing import Annotated
 
-from fastapi import APIRouter, UploadFile, Depends, status
+from fastapi import APIRouter, Depends, status, File, UploadFile, Response, \
+    HTTPException
 
 from app.database import User
 from app.services.auth import current_user
@@ -12,16 +14,37 @@ router = APIRouter(prefix='/audio', tags=['music'])
 
 @router.post('/add')
 async def add_music(
-        audio_file: UploadFile,
         user: Annotated[User, Depends(current_user)],
-        service: Annotated[AudioService, Depends(audio_service)]
+        service: Annotated[AudioService, Depends(audio_service)],
+        audio_file: Annotated[UploadFile, File(...)]
 ):
-    data = {
-        'user': user.id,
-        'data': audio_file
-    }
-    await service.add_audio(**data)
+    await service.add_audio(user=user.id, data=audio_file, name_file=audio_file.filename)
+
     return {
         'response': status.HTTP_200_OK,
         'message': 'Audio file successfully added in database'
     }
+
+
+@router.get('/record')
+async def download_audio_file(
+        filename: str,
+        user: Annotated[User, Depends(current_user)],
+        service: Annotated[AudioService, Depends(audio_service)],
+) -> Response:
+
+    audio_file = await service.get_audio(user=user.id, name_file=filename)
+
+    if audio_file:
+        content_type = io.BytesIO(audio_file.data).read()
+
+        return Response(
+            content=content_type,
+            media_type='audio/mpeg',
+            headers={'Content-Disposition': f'attachment; filename="{audio_file.name_file}"'}
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Audio with given name does not exist'
+        )

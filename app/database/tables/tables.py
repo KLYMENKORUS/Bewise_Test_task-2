@@ -24,5 +24,6 @@ audio_file = Table(
     metadata,
     Column('id', UUID, primary_key=True, default=uuid.uuid4),
     Column('user', UUID, ForeignKey('user.id', ondelete='CASCADE')),
+    Column('name_file', String(128), nullable=False, unique=True),
     Column('data', LargeBinary(), nullable=False,),
 )
