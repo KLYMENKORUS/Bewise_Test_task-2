@@ -1,5 +1,5 @@
 from app.utils import AbstractRepository
-from app.utils import Convert, AudioException
+from app.utils import Convert, AudioException, AudioDoesNotExist
 
 
 class AudioService:
@@ -16,8 +16,6 @@ class AudioService:
             name_file=kwargs.get('name_file').split('.')[0]
         )
 
-    async def get_audio(self, **kwargs):
-        return await self.audio_repo.get_one(
-            user=kwargs.get('user'),
-            name_file=kwargs.get('name_file')
-        )
+    @AudioDoesNotExist('Audio with given name does not exist')
+    async def get_audio(self, *args, **kwargs):
+        return args

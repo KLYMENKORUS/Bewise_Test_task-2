@@ -35,16 +35,10 @@ async def download_audio_file(
 
     audio_file = await service.get_audio(user=user.id, name_file=filename)
 
-    if audio_file:
-        content_type = io.BytesIO(audio_file.data).read()
+    content_type = io.BytesIO(audio_file[0].data).read()
 
-        return Response(
-            content=content_type,
-            media_type='audio/mpeg',
-            headers={'Content-Disposition': f'attachment; filename="{audio_file.name_file}"'}
-        )
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Audio with given name does not exist'
-        )
+    return Response(
+        content=content_type,
+        media_type='audio/mpeg',
+        headers={'Content-Disposition': f'attachment; filename="{audio_file[0].name_file}"'}
+    )

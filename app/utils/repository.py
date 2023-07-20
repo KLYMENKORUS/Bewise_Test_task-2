@@ -11,7 +11,7 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_one(self, **kwargs):
+    async def get_one(self, *args, **kwargs):
         raise NotImplementedError
 
 
