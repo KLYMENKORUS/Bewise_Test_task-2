@@ -1,8 +1,7 @@
 import io
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, File, UploadFile, Response, \
-    HTTPException
+from fastapi import APIRouter, Depends, status, File, UploadFile, Response
 
 from app.database import User
 from app.services.auth import current_user

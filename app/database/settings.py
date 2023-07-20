@@ -1,12 +1,32 @@
-import os
-from dotenv import load_dotenv
+from functools import lru_cache
+
+from pydantic_settings import BaseSettings
 
 
-load_dotenv()
+class Settings(BaseSettings):
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_PORT: str
 
-DB_NAME = os.getenv('POSTGRES_DB')
-DB_PASS = os.getenv('POSTGRES_PASSWORD')
-DB_USER = os.getenv('POSTGRES_USER')
-DB_PORT = os.getenv('POSTGRES_PORT')
+    class Config:
+        env_file = '.env'
 
-DATABASE_URL = f'postgresql+asyncpg://{DB_USER}:{DB_PASS}@127.0.0.1:{DB_PORT}/{DB_NAME}'
+
+@lru_cache()
+def get_settings():
+    data = Settings()
+
+    return {
+        'db_user': data.POSTGRES_USER,
+        'db_pass': data.POSTGRES_PASSWORD,
+        'db_name': data.POSTGRES_DB,
+        'db_port': data.POSTGRES_PORT,
+    }
+
+
+settings = get_settings()
+
+db_url = f'postgresql+asyncpg://{settings.get("db_user")}:' \
+         f'{settings.get("db_pass")}@127.0.0.1:{settings.get("db_port")}/{settings.get("db_name")}'
+
