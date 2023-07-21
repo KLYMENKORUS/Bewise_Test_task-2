@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Audio{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+
+        <div class="card shadow">
+                <div class="card-body">
+                <h5 class="card-text text-center font-italic">Add Audio</h5>
+                    <form id="upload-form" action="/add" method="post" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label for="formFile" class="form-label">Default file input example</label>
+                            <input class="form-control" name="audio_file" type="file" id="formFile">
+                        </div>
+
+                        <input id="add_audio" class="btn btn-info mt-3" type="submit" value="Add">
+
+                    </form>
+                    <div id="error-message" style="color: red; display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            try {
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Обработка успешного ответа, если необходимо
+                } else {
+                    // Обработка ошибки
+                    const data = await response.json();
+                    document.getElementById('error-message').innerText = data.detail;
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            } catch (error) {
+                // Обработка ошибок, если что-то пошло не так при отправке запроса
+                console.error(error);
+            }
+        });
+    </script>
+{% endblock %}
