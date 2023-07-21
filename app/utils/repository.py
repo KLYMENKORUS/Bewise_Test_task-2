@@ -14,6 +14,10 @@ class AbstractRepository(ABC):
     async def get_one(self, *args, **kwargs):
         raise NotImplementedError
 
+    @abstractmethod
+    async def get_all_by_filter(self, *args, **kwargs):
+        raise NotImplementedError
+
 
 class SQLAlchemyRepository(AbstractRepository):
 
@@ -34,3 +38,11 @@ class SQLAlchemyRepository(AbstractRepository):
                     select(self.model).filter_by(name_file=kwargs.get('name_file'), user=kwargs.get('user'))
                 )
                 return stmt.scalars().first()
+
+    async def get_all_by_filter(self, *args, **kwargs) -> list:
+        async with async_session() as session:
+            async with session.begin():
+                stmt = await session.execute(
+                    select(self.model).filter_by(user=kwargs.get('user'))
+                )
+                return [result[0] for result in stmt.all()]

@@ -1,11 +1,13 @@
 import datetime
 import uuid
+
 from fastapi import Depends
 from sqlalchemy import String, Boolean, TIMESTAMP, UUID, ForeignKey, BINARY
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from fastapi_users_db_sqlalchemy.generics import GUID
+
 from app.database.session import get_db
 
 

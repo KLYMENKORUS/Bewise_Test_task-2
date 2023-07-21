@@ -7,6 +7,7 @@ from app.database import User
 from app.services.auth import current_user
 from app.services.audio import AudioService
 from .dependencies import audio_service
+from .schemas import AudioSchemas
 
 router = APIRouter(prefix='/audio', tags=['music'])
 
@@ -41,3 +42,20 @@ async def download_audio_file(
         media_type='audio/mpeg',
         headers={'Content-Disposition': f'attachment; filename="{audio_file[0].name_file}"'}
     )
+
+
+@router.get('/record/all', response_model=list[AudioSchemas])
+async def all_audio_by_user(
+        user: Annotated[User, Depends(current_user)],
+        service: Annotated[AudioService, Depends(audio_service)],
+) -> list[AudioSchemas]:
+    audio_files = await service.get_all_by_filter(user=user.id)
+
+    return [
+        AudioSchemas(
+            id=audio.id,
+            name_file=audio.name_file,
+            user=user.email
+        ) for audio in audio_files
+    ]
+

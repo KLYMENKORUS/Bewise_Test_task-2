@@ -19,3 +19,6 @@ class AudioService:
     @AudioDoesNotExist('Audio with given name does not exist')
     async def get_audio(self, *args, **kwargs):
         return args
+
+    async def get_all_by_filter(self, *args, **kwargs):
+        return await self.audio_repo.get_all_by_filter(user=kwargs.get('user'))
