@@ -1,7 +1,8 @@
 from fastapi.templating import Jinja2Templates
 from fastapi import APIRouter, Request, Depends
 
-from app.internal import add_music, all_audio_by_user
+from app.internal import add_music, all_audio_by_user, download_audio_file, \
+    delete_audio
 
 
 router = APIRouter(prefix='/pages', tags=['Pages'])
@@ -22,3 +23,16 @@ def add_audio(request: Request, audio_file=Depends(add_music)):
         'index.html', {'request': request, 'audio': audio_file}
     )
 
+
+@router.get('/record')
+def record(request: Request, download=Depends(download_audio_file)):
+    return template.TemplateResponse(
+        'index.html', {'request': request, 'download': download}
+    )
+
+
+@router.delete('/delete')
+def delete_audio_file(request: Request, audio_file=Depends(delete_audio)):
+    return template.TemplateResponse(
+        'index.html', {'request': request, 'audio_file': audio_file}
+    )

@@ -59,16 +59,25 @@
                             </th>
                         </tr>
                         <tr class="table-primary">
-                            <th>ID</th>
                             <th>FileName</th>
                             <th>User</th>
+                            <th>Download</th>
+                            <th>Delete</th>
                         </tr>
                         </thead>
                         {% for audio in record_all %}
                             <tr>
-                                <td>{{ audio.id }}</td>
                                 <td>{{ audio.name_file }}</td>
                                 <td>{{ audio.user }}</td>
+                                <td>
+                                    <button onclick="download_audio('{{ audio.name_file }}')"
+                                            class="btn btn-outline-info btn-sm" type="button">Download</button>
+                                    <a href="#" id="downloadLink" style="display: none;"></a>
+                                </td>
+                                <td>
+                                    <button onclick="delete_audio('{{ audio.name_file }}')"
+                                            class="btn btn-outline-danger btn-sm" type="button">Delete</button>
+                                </td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -90,7 +99,7 @@
           sendData(formData);
       });
 
-      // Функция для отправки данных формы на сервер через Axios
+      // Функция для отправки аудио на сервер через Axios
       function sendData(formData) {
           axios.post('add_audio', formData)
               .then(function(response) {
@@ -118,6 +127,39 @@
               notification.className = 'notification';
               }, 3000);
 
+      }
+      // функция для закрузки файла
+      function download_audio(filename) {
+          axios.get('record',
+              {responseType: 'blob', params: {filename: filename}}
+          ).then(function (response) {
+              if (response.status === 200) {
+                  console.log(response)
+                  const blob = new Blob([response.data], {type: 'audio/mpeg'});
+                  const url = window.URL.createObjectURL(blob);
+                  const downloadLink = document.getElementById('downloadLink');
+                  downloadLink.href = url;
+                  downloadLink.download = filename;
+                  document.body.appendChild(downloadLink);
+                  downloadLink.click();
+                  document.body.removeChild(downloadLink);
+                  window.URL.revokeObjectURL(url);
+              }
+          }).catch(function (err) {
+              showNotification('Audio with given name does not exist', 'error');
+          });
+      }
+
+      // функция для удаления файла
+      function delete_audio(filename) {
+          axios.delete('delete', {params: {filename: filename}}).then(
+              function (response) {
+                  if (response.status === 200) {
+                      showNotification('Audio file successfully deleted with database', 'success');
+                  } else {
+                      showNotification('Error deleted audio file', 'error');
+                  }
+              });
       }
 
   </script>
