@@ -20,5 +20,9 @@ class AudioService:
     async def get_audio(self, *args, **kwargs):
         return args
 
+    @AudioDoesNotExist('Audio with given name does not exist')
+    async def delete_audio(self, *args, **kwargs):
+        return await self.audio_repo.delete(id=args[0].id)
+
     async def get_all_by_filter(self, *args, **kwargs):
         return await self.audio_repo.get_all_by_filter(user=kwargs.get('user'))

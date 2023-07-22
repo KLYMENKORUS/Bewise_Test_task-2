@@ -59,3 +59,17 @@ async def all_audio_by_user(
         ) for audio in audio_files
     ]
 
+
+@router.delete('/delete')
+async def delete_audio(
+        filename: str,
+        user: Annotated[User, Depends(current_user)],
+        service: Annotated[AudioService, Depends(audio_service)],
+):
+    await service.delete_audio(user=user.id, name_file=filename)
+
+    return {
+        'response': status.HTTP_200_OK,
+        'message': 'Audio file successfully deleted with database'
+    }
+

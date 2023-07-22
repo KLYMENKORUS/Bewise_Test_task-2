@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, delete
 from app.database.session import async_session
 
 
@@ -16,6 +16,9 @@ class AbstractRepository(ABC):
 
     @abstractmethod
     async def get_all_by_filter(self, *args, **kwargs):
+        raise NotImplementedError
+
+    async def delete(self, *args, **kwargs):
         raise NotImplementedError
 
 
@@ -46,3 +49,12 @@ class SQLAlchemyRepository(AbstractRepository):
                     select(self.model).filter_by(user=kwargs.get('user'))
                 )
                 return [result[0] for result in stmt.all()]
+
+    async def delete(self, *args, **kwargs) -> int:
+        async with async_session() as session:
+            async with session.begin():
+                stmt = await session.execute(
+                    delete(self.model).filter_by(id=kwargs.get('id')).\
+                    returning(self.model.id)
+                )
+                return stmt.scalars().first()
