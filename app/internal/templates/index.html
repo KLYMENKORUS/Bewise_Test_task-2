@@ -3,51 +3,122 @@
 {% block title %}Add Audio{% endblock %}
 
 {% block content %}
+<style>
+    .notification {
+  position: fixed;
+  top: 20px;
+  right: 120px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  z-index: 9999;
+  display: none; /* Скрываем уведомление по умолчанию */
+}
+
+.notification.success {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+.notification.error {
+  background-color: #f44336;
+  color: #fff;
+}
+
+</style>
     <div class="row">
-        <div class="col-md-6 mx-auto">
+        <div class="col-md-8 mx-auto">
 
         <div class="card shadow">
                 <div class="card-body">
                 <h5 class="card-text text-center font-italic">Add Audio</h5>
-                    <form id="upload-form" action="/add" method="post" enctype="multipart/form-data">
+                    <form id="upload-form"  method="post" enctype="multipart/form-data">
 
                         <div class="mb-3">
                             <label for="formFile" class="form-label">Default file input example</label>
                             <input class="form-control" name="audio_file" type="file" id="formFile">
                         </div>
 
-                        <input id="add_audio" class="btn btn-info mt-3" type="submit" value="Add">
+                        <input class="btn btn-info mt-3" type="submit" value="Add">
 
                     </form>
-                    <div id="error-message" style="color: red; display: none;"></div>
+                    <div id="notification"></div>
                 </div>
             </div>
         </div>
+
+        {% if record_all %}
+        <div class="col-md-8 mx-auto py-5">
+        <div class="card shadow">
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th colspan="6">
+                                <h5 class="font-italic text-center">AudioFiles</h5>
+                            </th>
+                        </tr>
+                        <tr class="table-primary">
+                            <th>ID</th>
+                            <th>FileName</th>
+                            <th>User</th>
+                        </tr>
+                        </thead>
+                        {% for audio in record_all %}
+                            <tr>
+                                <td>{{ audio.id }}</td>
+                                <td>{{ audio.name_file }}</td>
+                                <td>{{ audio.user }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
-    <script>
-        document.getElementById('upload-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.target);
+  <script>
+      document.getElementById('upload-form').addEventListener('submit', function(event) {
+          event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+          // Получаем данные формы
 
-            try {
-                const response = await fetch('/add', {
-                    method: 'POST',
-                    body: formData
-                });
+          const formData = new FormData(event.target);
 
-                if (response.ok) {
-                    // Обработка успешного ответа, если необходимо
-                } else {
-                    // Обработка ошибки
-                    const data = await response.json();
-                    document.getElementById('error-message').innerText = data.detail;
-                    document.getElementById('error-message').style.display = 'block';
-                }
-            } catch (error) {
-                // Обработка ошибок, если что-то пошло не так при отправке запроса
-                console.error(error);
-            }
-        });
-    </script>
+          // Отправляем данные формы на сервер через Axios
+
+          sendData(formData);
+      });
+
+      // Функция для отправки данных формы на сервер через Axios
+      function sendData(formData) {
+          axios.post('add_audio', formData)
+              .then(function(response) {
+                  if (response.status === 200) {
+                      // Обработка успешного ответа от сервера
+                      showNotification('Форма успешно отправлена!', 'success');
+                      document.getElementById('upload-form').reset(); // Сброс формы после успешной отправки
+                  }
+                  }).catch(function(error) {
+                      // Обработка ошибки ответа от сервера
+                  showNotification('Audio with this title already exists', 'error');
+
+                  });
+      }
+      // Функция для отображения уведомления
+      function showNotification(message, type) {
+          const notification = document.getElementById('notification');
+          notification.textContent = message;
+          notification.className = 'notification ' + type;
+          notification.style.display = 'block';
+
+          // Удаляем уведомление через 3 секунды
+          setTimeout(function() {
+              notification.textContent = '';
+              notification.className = 'notification';
+              }, 3000);
+
+      }
+
+  </script>
 {% endblock %}
