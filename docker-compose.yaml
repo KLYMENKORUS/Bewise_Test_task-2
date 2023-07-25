@@ -4,9 +4,6 @@ services:
     container_name: "task_2"
     image: postgres:14.1-alpine
     restart: always
-    volumes:
-      - db_volume:/var/lib/postgresql/data/
-      - static_volume:/app/static/
     env_file:
       - .env
 
@@ -31,6 +28,3 @@ services:
 networks:
   custom:
     driver: bridge
-volumes:
-  db_volume:
-  static_volume:

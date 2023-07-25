@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import aiofiles
 from http import HTTPStatus
 from httpx import AsyncClient
 
@@ -18,11 +17,17 @@ async def test_create_user(client: AsyncClient):
         "username": "string"
     }
     response = await client.post(url='/auth/register', json=new_user)
+
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json()['is_active'] is True
+    assert response.json()['is_active'] is True, response.text
+
+    return response.json().get('email')
 
 
 async def test_login(client: AsyncClient):
     response = await client.post(url='auth/jwt/login',
-                                 data={'username': 'user@example.com', 'password': '12345'})
+                                 data={'username': 'user@example.com', 'password': '12345'},
+                                 headers={'Content-Type': 'application/x-www-form-urlencoded'})
+
     assert response.status_code == HTTPStatus.NO_CONTENT
+    assert response.headers.get('Set-Cookie') is not None, response.text

@@ -1,4 +1,5 @@
 import asyncio
+
 import pytest
 from typing import AsyncGenerator
 from httpx import AsyncClient
@@ -60,15 +61,5 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=app, base_url='http://test') as async_client:
         yield async_client
 
-
-@pytest.fixture(scope='session', autouse=True)
-async def async_session_test():
-    """Test async session"""
-    engine = create_async_engine(
-        DATABASE_URL_TEST, future=True, echo=True, poolclass=NullPool
-    )
-    async_session_maker = async_sessionmaker(
-        engine, expire_on_commit=False, class_=AsyncSession)
-    yield async_session_maker
 
 

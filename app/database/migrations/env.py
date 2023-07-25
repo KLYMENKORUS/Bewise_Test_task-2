@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from app.database.settings import DB_NAME, DB_PASS, DB_PORT, DB_USER
+from app.database.settings import settings
 from app.database import metadata
 
 # this is the Alembic Config object, which provides
@@ -12,10 +12,10 @@ from app.database import metadata
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, 'DB_NAME', DB_NAME)
-config.set_section_option(section, 'DB_PASS', DB_PASS)
-config.set_section_option(section, 'DB_PORT', DB_PORT)
-config.set_section_option(section, 'DB_USER', DB_USER)
+config.set_section_option(section, 'DB_NAME', settings.get('db_name'))
+config.set_section_option(section, 'DB_PASS', settings.get('db_pass'))
+config.set_section_option(section, 'DB_PORT', settings.get('db_port'))
+config.set_section_option(section, 'DB_USER', settings.get('db_user'))
 
 
 # Interpret the config file for Python logging.
