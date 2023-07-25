@@ -20,11 +20,23 @@ services:
       - POSTGRES_USER=postgres_test
       - POSTGRES_PASSWORD=postgres_test
       - POSTGRES_PORT=5436
-      - POSTGRES_HOST=127.0.0.1
+      - POSTGRES_HOST=0.0.0.0
     ports:
       - "5436:5432"
     networks:
       - custom
+  api:
+    build: .
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/fastapi_app
+    ports:
+      - "8000:8000"
+    command: bash -c "uvicorn app:create_app --host 0.0.0.0 --port 8000 --reload"
 networks:
   custom:
     driver: bridge
