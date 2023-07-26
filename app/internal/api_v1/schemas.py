@@ -1,11 +1,10 @@
 import uuid
 from typing import Optional
 
-from fastapi_users import schemas
 from pydantic import EmailStr, BaseModel, Field
 
 
-class UserRead(schemas.BaseUser[uuid.UUID]):
+class UserRead(BaseModel):
     id: uuid.UUID
     username: str
     email: EmailStr
@@ -14,7 +13,7 @@ class UserRead(schemas.BaseUser[uuid.UUID]):
     is_verified: Optional[bool] = False
 
 
-class UserCreate(schemas.BaseUserCreate):
+class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str

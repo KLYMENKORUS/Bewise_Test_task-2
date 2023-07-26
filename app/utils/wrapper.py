@@ -7,6 +7,7 @@ from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 
 from app.repositories.audio import AudioRepository
+from app.repositories.auth import UserRepository
 
 
 class AudioException:
@@ -70,3 +71,25 @@ class Convert:
                     detail=f'Wrong file format'
                 )
         return wrapper
+
+
+class UserAlreadyExists:
+
+    def __init__(self):
+        self.user_service = UserRepository()
+
+    def __call__(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            if user := await self.user_service.get_one(**kwargs):
+                return await func(*args, **kwargs)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f'User with this email: {user.email} already exist'
+                )
+
+        return wrapper
+
+
+

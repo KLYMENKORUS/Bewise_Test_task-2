@@ -1,31 +1,42 @@
-import uuid
-from fastapi_users import FastAPIUsers
-from fastapi_users.authentication import CookieTransport, AuthenticationBackend
-from fastapi_users.authentication import JWTStrategy
-from .manager import get_user_manager
-from app.database import User
+from datetime import datetime, timedelta
+from typing import Union, Any, Optional
+
+import jwt
+
+from passlib.context import CryptContext
+
+from app.database import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, JWT_SECRET_KEY
 
 
-# backend get_jwt_strategy
-cookie_transport = CookieTransport(cookie_name='auth', cookie_max_age=3600)
+class Hasher:
+
+    password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    @classmethod
+    def get_hashed_pass(cls, password: str) -> str:
+        return cls.password_context.hash(password)
+
+    @classmethod
+    def verify_password(cls, password: str, hashed_pass: str) -> bool:
+        return cls.password_context.verify(password, hashed_pass)
 
 
-SECRET = "SECRET"
+class Token:
 
+    def __init__(self, subject: Union[str, Any],
+                 expires_delta: Optional[timedelta] = None) -> None:
+        self.subject = subject
+        self.expires_delta = expires_delta
+        self.expire = None
 
-def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=SECRET, lifetime_seconds=3600)
+    def create_access_token(self) -> str:
 
+        if self.expires_delta is not None:
+            self.expire = datetime.utcnow() + self.expires_delta
+        else:
+            self.expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-auth_backend = AuthenticationBackend(
-    name="jwt",
-    transport=cookie_transport,
-    get_strategy=get_jwt_strategy,
-)
+        to_encode = dict(exp=self.expire, sub=str(self.subject))
 
-fastapi_users = FastAPIUsers[User, uuid.UUID](
-    get_user_manager,
-    [auth_backend],
-)
+        return jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
 
-current_user = fastapi_users.current_user()

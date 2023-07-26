@@ -1,17 +1,28 @@
-from fastapi import APIRouter
-from app.internal import UserRead, UserCreate
-from app.services.auth import fastapi_users, auth_backend
+from typing import Annotated
 
-router = APIRouter()
+from fastapi import APIRouter, Depends
 
-router.include_router(
-    fastapi_users.get_auth_router(auth_backend),
-    prefix="/auth/jwt",
-    tags=["auth"],
-)
+from app.internal import UserCreate, UserRead
+from app.services.auth import UserService
+from app.internal import user_service
 
-router.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/auth",
-    tags=["auth"],
-)
+
+router = APIRouter(prefix='user', tags=['user'])
+
+
+@router.post('/register', summary='Create a new user', response_model=UserRead)
+async def register(
+        body: UserCreate,
+        service: Annotated[UserService, Depends(user_service)]
+) -> UserRead:
+
+    user = await service.create_user(**body.model_dump())
+
+    return UserRead(
+        id=user.id,
+        username=user.username,
+        email=user.email,
+        is_active=user.is_active,
+        is_superuser=user.is_superuser,
+        is_verified=user.is_verified,
+    )
