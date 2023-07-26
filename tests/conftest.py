@@ -15,7 +15,7 @@ from app.database import metadata
 app = create_app()
 
 
-DATABASE_URL_TEST = 'postgresql+asyncpg://postgres_test:postgres_test@127.0.0.1:5436/Testdb'
+DATABASE_URL_TEST = 'postgresql+asyncpg://postgres_test:postgres_test@db_test:5432/Testdb'
 
 # create async test engine
 test_engine = create_async_engine(
