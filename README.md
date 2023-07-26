@@ -49,9 +49,6 @@
   <ul>
   <li>Скачать и установить <a href='https://docs.docker.com/get-docker/'>Docker</a></li>
   <li>Клонировать репозиторий: <code> git clone https://github.com/KLYMENKORUS/Bewise_Test_task-2.git</code></li>
-  <li>Установить зависимости: <code>pip install -r requirements.txt</code></li>
-  <li>В корневой директории <code>src</code> создать файл .env и заполнить его по примеру .env.example</li>
-  <li>В папке <code>src</code> выполнить команду <code>docker compose -f docker-compose.yaml up -d</code></li>
-  <li>Выполнить команду <code>alembic upgrade heads</code> в папке <code>src</code></li>
-  <li>Запустить файл: <code>main.py</code></li>
+  <li>В корне проекта создать файл .env и заполнить его по примеру .env.example</li>
+  <li>Выполнить команду <code>docker-compose up -d --build</code> в корне проекта</li>
   </ul>
