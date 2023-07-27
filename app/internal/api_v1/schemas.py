@@ -26,3 +26,13 @@ class AudioSchemas(BaseModel):
     id: uuid.UUID = Field(..., examples=['bb88fb2a-f20d-4ca7-848d-ecc83498b094'])
     name_file: str = Field(..., examples=['simple_6s'])
     user: EmailStr = Field(..., examples=['user@example.com'])
+
+
+class TokenSchemas(BaseModel):
+    access_token: str = Field(..., examples=[''])
+    token_type: str = Field(..., examples=['Bearer'])
+
+
+class TokenPayload(BaseModel):
+    sub: str = None
+    exp: int = None

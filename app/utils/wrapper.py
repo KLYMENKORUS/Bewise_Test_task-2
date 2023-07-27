@@ -8,6 +8,7 @@ from pydub.exceptions import CouldntDecodeError
 
 from app.repositories.audio import AudioRepository
 from app.repositories.auth import UserRepository
+from .hashing import Hasher
 
 
 class AudioException:
@@ -81,15 +82,44 @@ class UserAlreadyExists:
     def __call__(self, func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            if user := await self.user_service.get_one(**kwargs):
+            if not await self.user_service.get_one(**kwargs):
                 return await func(*args, **kwargs)
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f'User with this email: {user.email} already exist'
+                    detail=f'User with this email: {kwargs.get("email")} already exist'
                 )
 
         return wrapper
+
+
+class AuthUser:
+
+    def __init__(self):
+        self.user_service = UserRepository()
+        self.exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Incorrect username or password'
+            )
+
+    def __call__(self, func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            user = await self.user_service.get_one(**kwargs)
+
+            if user is None:
+                raise self.exception
+
+            if not Hasher.verify_password(kwargs.get('password'), user.hashed_password):
+                raise self.exception
+
+            kwargs.update(user=user)
+
+            return await func(*args, **kwargs)
+
+        return wrapper
+
+
 
 
 

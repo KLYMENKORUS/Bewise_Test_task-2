@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, File, UploadFile, Response
 
 from app.database import User
-from app.services.auth import current_user
+from app.services.auth.utils import current_user
 from app.services.audio import AudioService
 from .dependencies import audio_service
 from .schemas import AudioSchemas

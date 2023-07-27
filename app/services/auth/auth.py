@@ -1,5 +1,5 @@
 from app.utils import AbstractRepository, UserAlreadyExists
-from .utils import Hasher
+from app.utils.hashing import Hasher
 
 
 class UserService:
@@ -12,7 +12,7 @@ class UserService:
         return await self.repository.add_one(
             username=kwargs.get('username'),
             email=kwargs.get('email'),
-            password=Hasher.get_hashed_pass(kwargs.get('password')),
+            hashed_password=Hasher.get_hashed_pass(kwargs.get('password')),
             is_active=kwargs.get('is_active'),
             is_superuser=kwargs.get('is_superuser'),
             is_verified=kwargs.get('is_verified'),
