@@ -2,11 +2,13 @@ import io
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, File, UploadFile, Response
+from pydantic import EmailStr
 
 from app.database import User
 from app.services.auth.utils import current_user
 from app.services.audio import AudioService
-from .dependencies import audio_service
+from app.services.auth.auth import UserService
+from .dependencies import audio_service, user_service
 from .schemas import AudioSchemas
 
 router = APIRouter(prefix='/audio', tags=['music'])
@@ -14,10 +16,12 @@ router = APIRouter(prefix='/audio', tags=['music'])
 
 @router.post('/add')
 async def add_music(
-        user: Annotated[User, Depends(current_user)],
+        email: EmailStr,
+        user: Annotated[UserService, Depends(user_service)],
         service: Annotated[AudioService, Depends(audio_service)],
-        audio_file: Annotated[UploadFile, File(...)]
+        audio_file: Annotated[UploadFile, File(..., description='Max size of audio file to 5 MB')]
 ):
+    user = await user.get_user(email)
     await service.add_audio(user=user.id, data=audio_file, name_file=audio_file.filename)
 
     return {

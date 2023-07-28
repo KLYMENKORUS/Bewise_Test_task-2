@@ -57,14 +57,23 @@ class AudioDoesNotExist:
 
 class Convert:
 
+    def __init__(self) -> None:
+        self.max_file_size = 5
+
     def __call__(self, func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             try:
-                audio_wav = AudioSegment.from_wav(io.BytesIO(await kwargs.get('data').read()))
-                convert_file = audio_wav.export(format='mp3').read()
-                kwargs.update({'data': convert_file})
-                return await func(*args, **kwargs)
+                if kwargs.get('data').size / 1024 / 1024 < self.max_file_size:
+                    audio_wav = AudioSegment.from_wav(io.BytesIO(await kwargs.get('data').read()))
+                    convert_file = audio_wav.export(format='mp3').read()
+                    kwargs.update({'data': convert_file})
+                    return await func(*args, **kwargs)
+                else:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail='Maximum file size exceeded'
+                    )
 
             except CouldntDecodeError:
                 raise HTTPException(
